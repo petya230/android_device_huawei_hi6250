@@ -63,7 +63,7 @@ static void write_string(char * path, char * value) {
 
 static void power_init(struct power_module *module)
 {
-    stock_power = property_get_bool(STOCK_PROP,false) ? 1 : 0;
+    stock_power = property_get_bool(STOCK_PROP,0) ? 1 : 0;
     if(stock_power) {
 	ALOGI("%s is set. Loading Stock Power HAL...", STOCK_PROP);
 	if(load_stock_power("/system/lib64/hw/power.default.so", &stock_power_module)) {
