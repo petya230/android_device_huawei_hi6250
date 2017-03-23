@@ -234,7 +234,7 @@ static void start_vsync_thread(fb_ctx_t *fb) {
 
 static int hwc_event_control (struct hwc_composer_device_1* dev, int disp,
             int event, int enabled) {
-    if(!enabled) return 0;
+    /*if(!enabled) return 0;
     if(event == HWC_EVENT_VSYNC) {
 	struct hwc_context_t *context = (hwc_context_t *)dev;
 
@@ -242,7 +242,7 @@ static int hwc_event_control (struct hwc_composer_device_1* dev, int disp,
 		return -EINVAL;
 	    context->disp[disp].vsync_on = enabled;
 	    start_vsync_thread(&context->disp[disp]);
-    }
+    }*/
     return 0;
 
 }
