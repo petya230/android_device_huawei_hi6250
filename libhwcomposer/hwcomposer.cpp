@@ -170,16 +170,36 @@ static void * vsync_thread(void * arg) {
    char read_result[20];
    if(fb->fake_vsync) {
 	while(true) {
+	    if(!fb->vsync_on) {
+		DEBUG_LOG("vsync thread sleeping id = %d fake = 1", fb->id);
+		while(!fb->vsync_on && !fb->vsync_stop)
+		    pthread_cond_wait(&fb->cond,&fb->mutex);
+		DEBUG_LOG("vsync thread woke up id = %d fake = 1", fb->id);
+		if(fb->vsync_stop)
+		    break;
+		if(!fb->vsync_on)
+		    continue;
+	    }
 	    timestamp = systemTime();
 	    fb->hwc_procs->vsync(fb->hwc_procs,fb->id,timestamp);
 	    usleep(16666);
 	}
    } else {
 	while(true) {
+	    if(!fb->vsync_on) {
+		DEBUG_LOG("vsync thread sleeping id = %d fake = 0", fb->id);
+		while(!fb->vsync_on && !fb->vsync_stop)
+		    pthread_cond_wait(&fb->cond,&fb->mutex);
+		DEBUG_LOG("vsync thread woke up id = %d fake = 0", fb->id);
+		if(fb->vsync_stop)
+		    break;
+		if(!fb->vsync_on)
+		    continue;
+	    }
 	    if(pread(fb->vsyncfd,read_result,20,0)) {
 		timestamp = atol(read_result);
 		fb->hwc_procs->vsync(fb->hwc_procs, fb->id, timestamp);
-		usleep(16666);
+		usleep(16500);
 	    } else { goto error; }
        }
    }
@@ -207,6 +227,8 @@ static void start_vsync_thread(fb_ctx_t *fb) {
 
     if(!fb->vthread_running) {
 	pthread_create(&fb->vthread,NULL,&vsync_thread, fb);
+    } else {
+	signal_vsync_thread(fb);
     }
 }
 
@@ -234,6 +256,7 @@ static int hwc_blank(struct hwc_composer_device_1* dev, int disp, int blank) {
 	fd = context->disp[disp].fd;
 	context->disp[disp].vsync_stop = blank;
 	context->disp[disp].vsync_on = blank ? 0 : 1;
+	signal_vsync_thread(&context->disp[disp]);
     } else
 	return -EINVAL;
 
