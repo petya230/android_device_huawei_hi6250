@@ -1,15 +1,15 @@
-From b9827ca063df1fe08813f720cc03d41012d39822 Mon Sep 17 00:00:00 2001
+From e8ac486c134fa373dfd5b534814b72929be6655e Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Fri, 18 Nov 2016 15:43:50 -0600
+Date: Thu, 23 Mar 2017 05:33:33 -0500
 Subject: [PATCH] 0001-CodinalteParts-Integration
 
-Change-Id: I875c8a3608ade88660947084493c325cf846c4b4
+Change-Id: I1388d01be1aba66ddcbccc90db5fc5a15c427552
 ---
  Android.mk                       | 10 ++++++++--
- AndroidManifest.xml              |  8 ++++++++
+ AndroidManifest.xml              | 10 ++++++++++
  res/values/meticulus_string.xml  | 22 ++++++++++++++++++++++
  res/xml/dashboard_categories.xml | 26 ++++++++++++++++++++++++++
- 4 files changed, 64 insertions(+), 2 deletions(-)
+ 4 files changed, 66 insertions(+), 2 deletions(-)
  create mode 100644 res/values/meticulus_string.xml
 
 diff --git a/Android.mk b/Android.mk
@@ -42,16 +42,18 @@ index 78c561c..6c25979 100644
  include frameworks/opt/setupwizard/library/common.mk
  include frameworks/base/packages/SettingsLib/common.mk
 diff --git a/AndroidManifest.xml b/AndroidManifest.xml
-index 700c93c..482b4e1 100755
+index ffeb655..c1d2a25 100755
 --- a/AndroidManifest.xml
 +++ b/AndroidManifest.xml
-@@ -2939,6 +2939,14 @@
+@@ -2933,6 +2933,16 @@
                  <category android:name="com.android.settings.SHORTCUT" />
              </intent-filter>
          </activity>
 +        <!-- Meticulus Application Methods -->
 +        <activity android:name="com.meticulus.codinalteparts.app.MainActivity" />
 +	<activity android:name="com.meticulus.codinalteparts.app.Sponsors" />
++	<activity android:name="com.meticulus.codinalteparts.app.LedActivity" 
++		  android:parentActivityName="com.meticulus.codinalteparts.app.MainActivity" />
  
 +	<receiver android:name="com.meticulus.codinalteparts.app.bootreceiver" >
 +            <intent-filter>
