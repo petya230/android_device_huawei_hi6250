@@ -1,0 +1,55 @@
+From ad21814c21f40f0e0a4f62e03619e274de9f6983 Mon Sep 17 00:00:00 2001
+From: "Christopher R. Palmer" <crpalmer@gmail.com>
+Date: Sun, 29 Nov 2015 08:28:10 -0500
+Subject: [PATCH] linker: Reset the active shim libs each time we do a dlopen
+
+We use the active libs to avoid recursively trying to load the
+same library:
+
+A -> shimlibs add B -> depends on A -> shimlibs add B -> ...
+
+However, when we repeatedly dlopen the same library we need
+to reset the active shim libs to avoid failing to add B the
+second time we dlopen A.
+
+Change-Id: I27580e3d6a53858e8bca025d6c85f981cffbea06
+---
+ linker/linker.cpp | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/linker/linker.cpp b/linker/linker.cpp
+index daaa502..03d3317 100644
+--- a/linker/linker.cpp
++++ b/linker/linker.cpp
+@@ -896,13 +896,18 @@ static std::vector<std::string> g_ld_all_shim_libs;
+ 
+ static linked_list_t<const std::string> g_active_shim_libs;
+ 
+-static void parse_LD_SHIM_LIBS(const char* path) {
+-  parse_path(path, " :", &g_ld_all_shim_libs);
++static void reset_g_active_shim_libs(void) {
++  g_active_shim_libs.clear();
+   for (const auto& pair : g_ld_all_shim_libs) {
+     g_active_shim_libs.push_back(&pair);
+   }
+ }
+ 
++static void parse_LD_SHIM_LIBS(const char* path) {
++  parse_path(path, " :", &g_ld_all_shim_libs);
++  reset_g_active_shim_libs();
++}
++
+ static bool shim_lib_matches(const char *shim_lib, const char *realpath) {
+   const char *sep = strchr(shim_lib, '|');
+   return sep != nullptr && strncmp(realpath, shim_lib, sep - shim_lib) == 0;
+@@ -1744,6 +1749,7 @@ soinfo* do_dlopen(const char* name, int flags, const android_dlextinfo* extinfo)
+   }
+ 
+   ProtectedDataGuard guard;
++  reset_g_active_shim_libs();
+   soinfo* si = find_library(name, flags, extinfo);
+   if (si != nullptr) {
+     si->call_constructors();
+-- 
+1.9.1
+

@@ -1,0 +1,75 @@
+From d40a35f61d2a149c79be2a906f262085487fd69a Mon Sep 17 00:00:00 2001
+From: "james.zhang" <james.zhang@spreadtrum.com>
+Date: Tue, 1 Dec 2015 17:55:11 +0800
+Subject: [PATCH] bug#460672 framebuffer surface can't keep triple buffer if
+ define NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
+
+[root cause  ] framebuffer surface is in the same process of surface flinger
+[changes     ] call IGraphicBufferProducer::allocateBuffers on producer inside the DisplayDevice constructor to force-allocate all three buffers.
+[side effects] none
+[self test   ]<tshark, enter and exit mainmenu>: ok
+[reviewers   ] zhongjun.chen
+[change_type ] AOB --> google_original
+[tag_product ] common
+
+Change-Id: Ideb75d3aa1ed23b2fa4d263a120ea3ca39d01361
+---
+ services/surfaceflinger/DisplayDevice.cpp | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
+
+diff --git a/services/surfaceflinger/DisplayDevice.cpp b/services/surfaceflinger/DisplayDevice.cpp
+index 1f607f2..f597b73 100644
+--- a/services/surfaceflinger/DisplayDevice.cpp
++++ b/services/surfaceflinger/DisplayDevice.cpp
+@@ -88,7 +88,8 @@ DisplayDevice::DisplayDevice(
+       mPowerMode(HWC_POWER_MODE_OFF),
+       mActiveConfig(0)
+ {
+-    mNativeWindow = new Surface(producer, false);
++    Surface* surface;
++    mNativeWindow = surface = new Surface(producer, false);
+     ANativeWindow* const window = mNativeWindow.get();
+     char property[PROPERTY_VALUE_MAX];
+ 
+@@ -96,14 +97,14 @@ DisplayDevice::DisplayDevice(
+      * Create our display's surface
+      */
+ 
+-    EGLSurface surface;
++    EGLSurface eglSurface;
+     EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+     if (config == EGL_NO_CONFIG) {
+         config = RenderEngine::chooseEglConfig(display, format);
+     }
+-    surface = eglCreateWindowSurface(display, config, window, NULL);
+-    eglQuerySurface(display, surface, EGL_WIDTH,  &mDisplayWidth);
+-    eglQuerySurface(display, surface, EGL_HEIGHT, &mDisplayHeight);
++    eglSurface = eglCreateWindowSurface(display, config, window, NULL);
++    eglQuerySurface(display, eglSurface, EGL_WIDTH,  &mDisplayWidth);
++    eglQuerySurface(display, eglSurface, EGL_HEIGHT, &mDisplayHeight);
+ 
+     // Make sure that composition can never be stalled by a virtual display
+     // consumer that isn't processing buffers fast enough. We have to do this
+@@ -117,7 +118,7 @@ DisplayDevice::DisplayDevice(
+ 
+     mConfig = config;
+     mDisplay = display;
+-    mSurface = surface;
++    mSurface = eglSurface;
+     mFormat  = format;
+     mPageFlipCount = 0;
+     mViewport.makeInvalid();
+@@ -148,6 +149,10 @@ DisplayDevice::DisplayDevice(
+ 
+     // initialize the display orientation transform.
+     setProjection(DisplayState::eOrientationDefault, mViewport, mFrame);
++
++#ifdef NUM_FRAMEBUFFER_SURFACE_BUFFERS
++    surface->allocateBuffers();
++#endif
+ }
+ 
+ DisplayDevice::~DisplayDevice() {
+-- 
+1.9.1
+

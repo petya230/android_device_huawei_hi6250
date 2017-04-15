@@ -1,0 +1,57 @@
+From 81105204fbb28ca97408a5dfe9608c6982317f24 Mon Sep 17 00:00:00 2001
+From: "Christopher R. Palmer" <crpalmer@gmail.com>
+Date: Tue, 1 Dec 2015 07:10:36 -0500
+Subject: [PATCH] linker: Don't try to walk the g_active_shim_libs when doing
+ dlsym
+
+This is a bug in the original shim_lib implementation which was
+doing the shim lib resolution both when loading the libraries
+and when doing the dynamic symbol resolution.
+
+Change-Id: Ib2df0498cf551b3bbd37d7c351410b9908eb1795
+---
+ linker/linker.cpp | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/linker/linker.cpp b/linker/linker.cpp
+index daaa502..2aafc6c 100644
+--- a/linker/linker.cpp
++++ b/linker/linker.cpp
+@@ -945,7 +945,7 @@ static bool shim_libs_for_each(const char *const path, F action) {
+ // walk_dependencies_tree returns false if walk was terminated
+ // by the action and true otherwise.
+ template<typename F>
+-static bool walk_dependencies_tree(soinfo* root_soinfos[], size_t root_soinfos_size, F action) {
++static bool walk_dependencies_tree(soinfo* root_soinfos[], size_t root_soinfos_size, bool do_shims, F action) {
+   SoinfoLinkedList visit_list;
+   SoinfoLinkedList visited;
+ 
+@@ -969,7 +969,7 @@ static bool walk_dependencies_tree(soinfo* root_soinfos[], size_t root_soinfos_s
+       visit_list.push_back(child);
+     });
+ 
+-    if (!shim_libs_for_each(si->get_realpath(), [&](soinfo* child) {
++    if (do_shims && !shim_libs_for_each(si->get_realpath(), [&](soinfo* child) {
+         si->add_child(child);
+         visit_list.push_back(child);
+       })) {
+@@ -986,7 +986,7 @@ static const ElfW(Sym)* dlsym_handle_lookup(soinfo* root, soinfo* skip_until,
+   const ElfW(Sym)* result = nullptr;
+   bool skip_lookup = skip_until != nullptr;
+ 
+-  walk_dependencies_tree(&root, 1, [&](soinfo* current_soinfo) {
++  walk_dependencies_tree(&root, 1, false, [&](soinfo* current_soinfo) {
+     if (skip_lookup) {
+       skip_lookup = current_soinfo != skip_until;
+       return true;
+@@ -1565,6 +1565,7 @@ static bool find_libraries(soinfo* start_with, const char* const library_names[]
+   walk_dependencies_tree(
+       start_with == nullptr ? soinfos : &start_with,
+       start_with == nullptr ? soinfos_count : 1,
++      true,
+       [&] (soinfo* si) {
+     local_group.push_back(si);
+     return true;
+-- 
+1.9.1
+

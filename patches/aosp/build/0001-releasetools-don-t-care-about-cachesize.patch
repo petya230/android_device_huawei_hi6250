@@ -1,0 +1,25 @@
+From ba8a97435868e3cf9e3b9a3043908234c291c1db Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Wed, 12 Apr 2017 11:32:46 -0500
+Subject: [PATCH] releasetools: don't care about cachesize
+
+---
+ tools/releasetools/ota_from_target_files.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tools/releasetools/ota_from_target_files.py b/tools/releasetools/ota_from_target_files.py
+index c5c16b4..c88b280 100755
+--- a/tools/releasetools/ota_from_target_files.py
++++ b/tools/releasetools/ota_from_target_files.py
+@@ -1634,7 +1634,7 @@ def main(argv):
+ 
+     cache_size = OPTIONS.info_dict.get("cache_size", None)
+     if cache_size is None:
+-      raise RuntimeError("can't determine the cache partition size")
++      print"can't determine the cache partition size"
+     OPTIONS.cache_size = cache_size
+ 
+     if OPTIONS.incremental_source is None:
+-- 
+1.9.1
+

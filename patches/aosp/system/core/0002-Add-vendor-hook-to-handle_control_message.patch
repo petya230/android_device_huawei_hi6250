@@ -1,0 +1,77 @@
+From 57f1debb3f1e615a4888fa83b9613920dd53ca6c Mon Sep 17 00:00:00 2001
+From: Aaron Kling <webgeek1234@gmail.com>
+Date: Thu, 31 Dec 2015 22:33:50 -0600
+Subject: [PATCH] Add vendor hook to handle_control_message
+
+This is needed for Nvidia Shield devices to handle a
+'restart consolemode' request from a blobbed stock app.
+
+The vendor function is expected to return non-0 if it did
+not handle the message and 0 if it did (or wants it ignored).
+
+Forward port of 119414.
+
+Change-Id: Ia8e4ba0bbf561f29f72862cd986f1660d7b501da
+---
+ init/init.cpp        | 4 ++++
+ init/vendor_init.cpp | 7 +++++++
+ init/vendor_init.h   | 1 +
+ 3 files changed, 12 insertions(+)
+
+diff --git a/init/init.cpp b/init/init.cpp
+index df04ea3..402331b 100644
+--- a/init/init.cpp
++++ b/init/init.cpp
+@@ -63,6 +63,7 @@
+ #include "util.h"
+ #include "ueventd.h"
+ #include "watchdogd.h"
++#include "vendor_init.h"
+ 
+ struct selabel_handle *sehandle;
+ struct selabel_handle *sehandle_prop;
+@@ -535,6 +536,9 @@ static void msg_restart(const char *name)
+ 
+ void handle_control_message(const char *msg, const char *arg)
+ {
++    if (!vendor_handle_control_message(msg, arg))
++        return;
++
+     if (!strcmp(msg,"start")) {
+         msg_start(arg);
+     } else if (!strcmp(msg,"stop")) {
+diff --git a/init/vendor_init.cpp b/init/vendor_init.cpp
+index d3fd5ff..d2964ad 100644
+--- a/init/vendor_init.cpp
++++ b/init/vendor_init.cpp
+@@ -28,6 +28,7 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  */
+ 
+ #include "vendor_init.h"
++#include <errno.h>
+ 
+ /* init vendor override stubs */
+ 
+@@ -35,3 +36,9 @@ __attribute__ ((weak))
+ void vendor_load_properties()
+ {
+ }
++
++__attribute__ ((weak))
++int vendor_handle_control_message(const char *msg, const char *arg)
++{
++    return -ENOSYS;
++}
+diff --git a/init/vendor_init.h b/init/vendor_init.h
+index 9afb449..efa4eea 100644
+--- a/init/vendor_init.h
++++ b/init/vendor_init.h
+@@ -30,4 +30,5 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ #ifndef __INIT_VENDOR__H__
+ #define __INIT_VENDOR__H__
+ extern void vendor_load_properties(void);
++extern int vendor_handle_control_message(const char *msg, const char *arg);
+ #endif /* __INIT_VENDOR__H__ */
+-- 
+1.9.1
+

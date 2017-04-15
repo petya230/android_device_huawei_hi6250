@@ -1,0 +1,105 @@
+From 717fa85589e451cadd3d5ed10a7f7af08c71187e Mon Sep 17 00:00:00 2001
+From: Ricardo Cerqueira <ricardo@cyngn.com>
+Date: Fri, 19 Sep 2014 10:43:12 +0100
+Subject: [PATCH] init: Let a device's init.rc redefine service entries
+
+In case of duplicate service definitions, init.rc's version always
+wins. This is a less-than-ideal situation and the main reason for
+some devices to override the default init.rc, which leads to out-of-sync
+situations whenever we happen to insert something into the main copy.
+
+So let services be overridden. To prevent accidental override of
+system services, use a specific keyword for this, "service_redefine"
+
+Change-Id: I94eb4ebadfda8982128ec17f639411c03b18f68f
+---
+ init/init_parser.cpp | 20 ++++++++++++++------
+ init/keywords.h      |  1 +
+ 2 files changed, 15 insertions(+), 6 deletions(-)
+
+diff --git a/init/init_parser.cpp b/init/init_parser.cpp
+index 666a86e..c760f53 100644
+--- a/init/init_parser.cpp
++++ b/init/init_parser.cpp
+@@ -44,7 +44,7 @@ struct import {
+     const char *filename;
+ };
+ 
+-static void *parse_service(struct parse_state *state, int nargs, char **args);
++static void *parse_service(struct parse_state *state, int nargs, char **args, bool redefine);
+ static void parse_line_service(struct parse_state *state, int nargs, char **args);
+ 
+ static void *parse_action(struct parse_state *state, int nargs, char **args);
+@@ -184,6 +184,7 @@ static int lookup_keyword(const char *s)
+     case 's':
+         if (!strcmp(s, "eclabel")) return K_seclabel;
+         if (!strcmp(s, "ervice")) return K_service;
++        if (!strcmp(s, "ervice_redefine")) return K_service_redefine;
+         if (!strcmp(s, "etenv")) return K_setenv;
+         if (!strcmp(s, "etprop")) return K_setprop;
+         if (!strcmp(s, "etrlimit")) return K_setrlimit;
+@@ -361,7 +362,8 @@ static void parse_new_section(struct parse_state *state, int kw,
+            nargs > 1 ? args[1] : "");
+     switch(kw) {
+     case K_service:
+-        state->context = parse_service(state, nargs, args);
++    case K_service_redefine:
++        state->context = parse_service(state, nargs, args, (kw == K_service_redefine));
+         if (state->context) {
+             state->parse_line = parse_line_service;
+             return;
+@@ -725,7 +727,7 @@ service* make_exec_oneshot_service(int nargs, char** args) {
+     return svc;
+ }
+ 
+-static void *parse_service(struct parse_state *state, int nargs, char **args)
++static void *parse_service(struct parse_state *state, int nargs, char **args, bool redefine)
+ {
+     if (nargs < 3) {
+         parse_error(state, "services must have a name and a program\n");
+@@ -737,13 +739,18 @@ static void *parse_service(struct parse_state *state, int nargs, char **args)
+     }
+ 
+     service* svc = (service*) service_find_by_name(args[1]);
+-    if (svc) {
++    if (svc && !redefine) {
+         parse_error(state, "ignored duplicate definition of service '%s'\n", args[1]);
+         return 0;
+     }
+ 
+     nargs -= 2;
+-    svc = (service*) calloc(1, sizeof(*svc) + sizeof(char*) * nargs);
++
++    if (!svc) {
++        svc = (service*) calloc(1, sizeof(*svc) + sizeof(char*) * nargs);
++        redefine = false;
++    }
++
+     if (!svc) {
+         parse_error(state, "out of memory\n");
+         return 0;
+@@ -758,7 +765,8 @@ static void *parse_service(struct parse_state *state, int nargs, char **args)
+     cur_trigger->name = "onrestart";
+     list_add_tail(&svc->onrestart.triggers, &cur_trigger->nlist);
+     list_init(&svc->onrestart.commands);
+-    list_add_tail(&service_list, &svc->slist);
++    if (!redefine)
++        list_add_tail(&service_list, &svc->slist);
+     return svc;
+ }
+ 
+diff --git a/init/keywords.h b/init/keywords.h
+index e637d7d..a5048f4 100644
+--- a/init/keywords.h
++++ b/init/keywords.h
+@@ -83,6 +83,7 @@ enum {
+     KEYWORD(rmdir,       COMMAND, 1, do_rmdir)
+     KEYWORD(seclabel,    OPTION,  0, 0)
+     KEYWORD(service,     SECTION, 0, 0)
++    KEYWORD(service_redefine,     SECTION, 0, 0)
+     KEYWORD(setenv,      OPTION,  2, 0)
+     KEYWORD(setprop,     COMMAND, 2, do_setprop)
+     KEYWORD(setrlimit,   COMMAND, 3, do_setrlimit)
+-- 
+1.9.1
+

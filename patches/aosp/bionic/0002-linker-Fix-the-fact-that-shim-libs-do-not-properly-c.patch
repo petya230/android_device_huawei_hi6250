@@ -1,0 +1,26 @@
+From 9b6d9ca81013be18cb104b0e1587b503d70cca7c Mon Sep 17 00:00:00 2001
+From: "Christopher R. Palmer" <crpalmer@gmail.com>
+Date: Sun, 15 Nov 2015 14:26:32 -0500
+Subject: [PATCH] linker: Fix the fact that shim libs do not properly call
+ constructors
+
+Change-Id: I34333e13443a154e675b853fa41442351bc4243a
+---
+ linker/linker.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/linker/linker.cpp b/linker/linker.cpp
+index 146937a..daaa502 100644
+--- a/linker/linker.cpp
++++ b/linker/linker.cpp
+@@ -970,6 +970,7 @@ static bool walk_dependencies_tree(soinfo* root_soinfos[], size_t root_soinfos_s
+     });
+ 
+     if (!shim_libs_for_each(si->get_realpath(), [&](soinfo* child) {
++        si->add_child(child);
+         visit_list.push_back(child);
+       })) {
+       return false;
+-- 
+1.9.1
+

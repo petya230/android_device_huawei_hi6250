@@ -1,0 +1,27 @@
+From b7c683c873b863b21cce3d5417409bd20f815709 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Wed, 12 Apr 2017 12:06:36 -0500
+Subject: [PATCH] 0001-SurfaceFlinger-make-the-num-FBs-a-board-config
+
+---
+ services/surfaceflinger/Android.mk | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/services/surfaceflinger/Android.mk b/services/surfaceflinger/Android.mk
+index 1eb2361..cc6de8c 100644
+--- a/services/surfaceflinger/Android.mk
++++ b/services/surfaceflinger/Android.mk
+@@ -92,6 +92,10 @@ endif
+ LOCAL_CFLAGS += -fvisibility=hidden -Werror=format
+ LOCAL_CFLAGS += -std=c++11
+ 
++ifneq ($(NUM_FRAMEBUFFER_SURFACE_BUFFERS),)
++  LOCAL_CFLAGS += -DNUM_FRAMEBUFFER_SURFACE_BUFFERS=$(NUM_FRAMEBUFFER_SURFACE_BUFFERS)
++endif
++
+ LOCAL_SHARED_LIBRARIES := \
+     libcutils \
+     liblog \
+-- 
+1.9.1
+

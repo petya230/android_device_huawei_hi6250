@@ -14,7 +14,11 @@
 # limitations under the License.
 #
 
+ifeq ($(TARGET_PRODUCT), cm_hi6250)
 DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/overlay
+else
+DEVICE_PACKAGE_OVERLAYS += $(LOCAL_PATH)/aosp_overlay
+endif
 
 # Inherit from those products. Most specific first.
 $(call inherit-product, build/target/product/full_base_telephony.mk)

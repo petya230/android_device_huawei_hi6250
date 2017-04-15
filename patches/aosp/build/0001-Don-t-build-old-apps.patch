@@ -1,0 +1,37 @@
+From 5d45e4e683e430d97b39789173769322876afffc Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Wed, 12 Apr 2017 14:02:38 -0500
+Subject: [PATCH] Don't build old apps
+
+---
+ target/product/core.mk                 | 1 -
+ target/product/generic_no_telephony.mk | 1 -
+ 2 files changed, 2 deletions(-)
+
+diff --git a/target/product/core.mk b/target/product/core.mk
+index d453303..16e3b98 100644
+--- a/target/product/core.mk
++++ b/target/product/core.mk
+@@ -47,7 +47,6 @@ PRODUCT_PACKAGES += \
+     libpac \
+     PrintSpooler \
+     ProxyHandler \
+-    QuickSearchBox \
+     Settings \
+     SharedStorageBackup \
+     Telecom \
+diff --git a/target/product/generic_no_telephony.mk b/target/product/generic_no_telephony.mk
+index f6ccd2a..52fe541 100644
+--- a/target/product/generic_no_telephony.mk
++++ b/target/product/generic_no_telephony.mk
+@@ -22,7 +22,6 @@ PRODUCT_PACKAGES := \
+     BluetoothMidiService \
+     Camera2 \
+     Gallery2 \
+-    Music \
+     MusicFX \
+     OneTimeInitializer \
+     Provision \
+-- 
+1.9.1
+

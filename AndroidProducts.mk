@@ -15,4 +15,5 @@
 #
 
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/cm.mk
+    cm_hi6250:$(LOCAL_DIR)/cm.mk \
+    aosp_hi6250:$(LOCAL_DIR)/aosp.mk

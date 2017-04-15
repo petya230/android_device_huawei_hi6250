@@ -1,0 +1,70 @@
+From d45ca0d9b66a91a3758a8907b9d0f1e4e4f66447 Mon Sep 17 00:00:00 2001
+From: Danny Baumann <dannybaumann@web.de>
+Date: Fri, 11 Dec 2015 10:29:16 +0100
+Subject: [PATCH] Make shim lib load failure non-fatal.
+
+Instead, print an appropriate warning message. Aborting symbol
+resolution on shim lib load failure leads to weird symbol lookup
+failures, because symbols in libraries referenced after the one loading
+the shim won't be loaded anymore without a log message stating why that
+happened.
+
+Change-Id: Ic3ad7095ddae7ea1039cb6a18603d5cde8a16143
+---
+ linker/linker.cpp | 22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
+
+diff --git a/linker/linker.cpp b/linker/linker.cpp
+index 9885b69..c81f5d3 100644
+--- a/linker/linker.cpp
++++ b/linker/linker.cpp
+@@ -922,9 +922,9 @@ static bool shim_lib_matches(const char *shim_lib, const char *realpath) {
+ }
+ 
+ template<typename F>
+-static bool shim_libs_for_each(const char *const path, F action) {
+-  if (path == nullptr) return true;
+-  INFO("finding shim libs for \"%s\"\n", path);
++static void shim_libs_for_each(const char *const path, F action) {
++  if (path == nullptr) return;
++  INFO("Finding shim libs for \"%s\"\n", path);
+   std::vector<const std::string *> matched;
+ 
+   g_active_shim_libs.for_each([&](const std::string *a_pair) {
+@@ -942,12 +942,14 @@ static bool shim_libs_for_each(const char *const path, F action) {
+   for (const auto& one_pair : matched) {
+     const char* const pair = one_pair->c_str();
+     const char* sep = strchr(pair, '|');
+-    INFO("found shim lib \"%s\"\n", sep+1);
+     soinfo *child = find_library(sep+1, RTLD_GLOBAL, nullptr);
+-    if (! child) return false;
+-    action(child);
++    if (child) {
++      INFO("Using shim lib \"%s\"\n", sep+1);
++      action(child);
++    } else {
++      PRINT("Shim lib \"%s\" can not be loaded, ignoring.", sep+1);
++    }
+   }
+-  return true;
+ }
+ 
+ // This function walks down the tree of soinfo dependencies
+@@ -982,11 +984,11 @@ static bool walk_dependencies_tree(soinfo* root_soinfos[], size_t root_soinfos_s
+       visit_list.push_back(child);
+     });
+ 
+-    if (do_shims && !shim_libs_for_each(si->get_realpath(), [&](soinfo* child) {
++    if (do_shims) {
++      shim_libs_for_each(si->get_realpath(), [&](soinfo* child) {
+         si->add_child(child);
+         visit_list.push_back(child);
+-      })) {
+-      return false;
++      });
+     }
+   }
+ 
+-- 
+1.9.1
+

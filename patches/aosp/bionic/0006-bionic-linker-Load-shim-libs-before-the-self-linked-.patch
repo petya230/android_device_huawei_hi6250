@@ -1,0 +1,55 @@
+From 02b1d48d51ffed14442390c80e773f3ac89396ff Mon Sep 17 00:00:00 2001
+From: "Christopher R. Palmer" <crpalmer@gmail.com>
+Date: Sun, 14 Feb 2016 11:38:44 -0500
+Subject: [PATCH] bionic: linker: Load shim libs *before* the self-linked libs
+
+By loading them earlier, this allows us to override a symbol in
+a library that is being directly linked.
+
+I believe this explains why some people have had problems shimming
+one lib but when the changet he shim to be against a different
+lib it magically works.
+
+It also makes it possible to override some symbols that were
+nearly impossible to override before this change.  For example, it is
+pretty much impossible to override a symbol in libutils without
+this change because it's loaded almost everywhere so no matter
+where you try to place the shimming, it will be too late and
+the other symbol will have priority.
+
+In particularly, this is necessary to be able to correctly
+shim the VectorImpl symbols for dlx.
+
+Change-Id: I461ca416bc288e28035352da00fde5f34f8d9ffa
+---
+ linker/linker.cpp | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/linker/linker.cpp b/linker/linker.cpp
+index c81f5d3..ed2536a 100644
+--- a/linker/linker.cpp
++++ b/linker/linker.cpp
+@@ -980,16 +980,16 @@ static bool walk_dependencies_tree(soinfo* root_soinfos[], size_t root_soinfos_s
+ 
+     visited.push_back(si);
+ 
+-    si->get_children().for_each([&](soinfo* child) {
+-      visit_list.push_back(child);
+-    });
+-
+     if (do_shims) {
+       shim_libs_for_each(si->get_realpath(), [&](soinfo* child) {
+         si->add_child(child);
+         visit_list.push_back(child);
+       });
+     }
++
++    si->get_children().for_each([&](soinfo* child) {
++      visit_list.push_back(child);
++    });
+   }
+ 
+   return true;
+-- 
+1.9.1
+
