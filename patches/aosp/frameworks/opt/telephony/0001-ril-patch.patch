@@ -1,0 +1,157 @@
+From da4e26d9919c451e6f4330d9250ca0e798404bda Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Sun, 16 Apr 2017 08:11:56 -0500
+Subject: [PATCH] 0001-ril-patch
+
+---
+ src/java/com/android/internal/telephony/RIL.java | 41 +++++++++++++-----------
+ 1 file changed, 23 insertions(+), 18 deletions(-)
+
+diff --git a/src/java/com/android/internal/telephony/RIL.java b/src/java/com/android/internal/telephony/RIL.java
+index 4ada1aa..276dca1 100644
+--- a/src/java/com/android/internal/telephony/RIL.java
++++ b/src/java/com/android/internal/telephony/RIL.java
+@@ -100,11 +100,11 @@ class RILRequest {
+     //***** Class Variables
+     static Random sRandom = new Random();
+     static AtomicInteger sNextSerial = new AtomicInteger(0);
+-    private static Object sPoolSync = new Object();
+-    private static RILRequest sPool = null;
+-    private static int sPoolSize = 0;
+-    private static final int MAX_POOL_SIZE = 4;
+-    private Context mContext;
++    protected static Object sPoolSync = new Object();
++    protected static RILRequest sPool = null;
++    protected static int sPoolSize = 0;
++    protected static final int MAX_POOL_SIZE = 4;
++    protected Context mContext;
+ 
+     //***** Instance Variables
+     int mSerial;
+@@ -169,7 +169,7 @@ class RILRequest {
+         }
+     }
+ 
+-    private RILRequest() {
++    protected RILRequest() {
+     }
+ 
+     static void
+@@ -287,9 +287,9 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+ 
+     // The number of the required config values for broadcast SMS stored in the C struct
+     // RIL_CDMA_BroadcastServiceInfo
+-    private static final int CDMA_BSI_NO_OF_INTS_STRUCT = 3;
++    protected static final int CDMA_BSI_NO_OF_INTS_STRUCT = 3;
+ 
+-    private static final int CDMA_BROADCAST_SMS_NO_OF_SERVICE_CATEGORIES = 31;
++    protected static final int CDMA_BROADCAST_SMS_NO_OF_SERVICE_CATEGORIES = 31;
+ 
+     private final DisplayManager.DisplayListener mDisplayListener =
+             new DisplayManager.DisplayListener() {
+@@ -311,7 +311,7 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+         }
+     };
+ 
+-    private final BroadcastReceiver mBatteryStateListener = new BroadcastReceiver() {
++    protected final BroadcastReceiver mBatteryStateListener = new BroadcastReceiver() {
+         @Override
+         public void onReceive(Context context, Intent intent) {
+             boolean oldState = mIsDevicePlugged;
+@@ -452,7 +452,7 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+      * @return Length of message less header, or -1 on end of stream.
+      * @throws IOException
+      */
+-    private static int readRilMessage(InputStream is, byte[] buffer)
++    protected static int readRilMessage(InputStream is, byte[] buffer)
+             throws IOException {
+         int countRead;
+         int offset;
+@@ -1302,7 +1302,7 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+         send(rr);
+     }
+ 
+-    private void
++    protected void
+     constructGsmSendSmsRilRequest (RILRequest rr, String smscPDU, String pdu) {
+         rr.mParcel.writeInt(2);
+         rr.mParcel.writeString(smscPDU);
+@@ -1334,7 +1334,7 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+         send(rr);
+     }
+ 
+-    private void
++    protected void
+     constructCdmaSendSmsRilRequest(RILRequest rr, byte[] pdu) {
+         int address_nbr_of_digits;
+         int subaddr_nbr_of_digits;
+@@ -1486,7 +1486,7 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+      *  Translates EF_SMS status bits to a status value compatible with
+      *  SMS AT commands.  See TS 27.005 3.1.
+      */
+-    private int translateStatus(int status) {
++    protected int translateStatus(int status) {
+         switch(status & 0x7) {
+             case SmsManager.STATUS_ON_ICC_READ:
+                 return 1;
+@@ -2255,7 +2255,7 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+      * Update the screen state. Send screen state ON if the default display is ON or the device
+      * is plugged.
+      */
+-    private void updateScreenState() {
++    protected void updateScreenState() {
+         final int oldState = mRadioScreenState;
+         mRadioScreenState = (mDefaultDisplayState == Display.STATE_ON || mIsDevicePlugged)
+                 ? RADIO_SCREEN_ON : RADIO_SCREEN_OFF;
+@@ -2290,8 +2290,9 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+     private RadioState getRadioStateFromInt(int stateInt) {
+         RadioState state;
+ 
++	int stateIntNormalized = convertRadioState(stateInt);
+         /* RIL_RadioState ril.h */
+-        switch(stateInt) {
++        switch(stateIntNormalized) {
+             case 0: state = RadioState.RADIO_OFF; break;
+             case 1: state = RadioState.RADIO_UNAVAILABLE; break;
+             case 10: state = RadioState.RADIO_ON; break;
+@@ -2303,6 +2304,10 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+         return state;
+     }
+ 
++    protected int convertRadioState(int paramInt){
++	return paramInt > 1 && paramInt < 10 ? 10 : paramInt;
++    }
++
+     private void switchToRadioState(RadioState newState) {
+         setRadioState(newState);
+     }
+@@ -2316,7 +2321,7 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+      * happen often.
+      */
+ 
+-    private void
++    protected void
+     acquireWakeLock() {
+         synchronized (mWakeLock) {
+             mWakeLock.acquire();
+@@ -2328,7 +2333,7 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+         }
+     }
+ 
+-    private void
++    protected void
+     decrementWakeLock() {
+         synchronized (mWakeLock) {
+             if (mWakeLockCount > 1) {
+@@ -2342,7 +2347,7 @@ public final class RIL extends BaseCommands implements CommandsInterface {
+     }
+ 
+     // true if we had the wakelock
+-    private boolean
++    protected boolean
+     clearWakeLock() {
+         synchronized (mWakeLock) {
+             if (mWakeLockCount == 0 && mWakeLock.isHeld() == false) return false;
+-- 
+1.9.1
+
