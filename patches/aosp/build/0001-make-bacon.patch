@@ -1,6 +1,6 @@
-From 50831408b2f41974e9aaad28064753e670ea0508 Mon Sep 17 00:00:00 2001
+From 1deb7835b3ad970b6aae351348163f959a46e2c8 Mon Sep 17 00:00:00 2001
 From: Meticulus <theonejohnnyd@gmail.com>
-Date: Sun, 16 Apr 2017 06:19:36 -0500
+Date: Mon, 17 Apr 2017 07:19:15 -0500
 Subject: [PATCH] 0001-make-bacon
 
 ---
@@ -8,7 +8,7 @@ Subject: [PATCH] 0001-make-bacon
  1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/core/Makefile b/core/Makefile
-index 07d1c94..872a0a1 100644
+index 07d1c94..e2431a3 100644
 --- a/core/Makefile
 +++ b/core/Makefile
 @@ -1565,8 +1565,14 @@ $(INTERNAL_OTA_PACKAGE_TARGET): $(BUILT_TARGET_FILES_PACKAGE) $(DISTTOOLS)
@@ -16,8 +16,8 @@ index 07d1c94..872a0a1 100644
  	   $(BUILT_TARGET_FILES_PACKAGE) $@
  
 -.PHONY: otapackage
-+AOSP_VERSION := $(TARGET_PRODUCT)--$(shell date -u +%Y%m%d)-$(USER)
-+AOSP_TARGET_PACKAGE := $(PRODUCT_OUT)/aosp-$(AOSP_VERSION).zip
++AOSP_VERSION := $(TARGET_PRODUCT)-$(shell date -u +%Y%m%d)-$(USER)
++AOSP_TARGET_PACKAGE := $(PRODUCT_OUT)/$(AOSP_VERSION).zip
 +
 +.PHONY: otapackage bacon
  otapackage: $(INTERNAL_OTA_PACKAGE_TARGET)
