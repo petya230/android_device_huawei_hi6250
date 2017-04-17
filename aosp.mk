@@ -14,6 +14,10 @@
 # limitations under the License.
 #
 
+# APN's from LOS13
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/configs/etc/apns-conf.xml:system/etc/apns-conf.xml
+
 # Inherit cm
 $(call inherit-product, device/huawei/hi6250/cm.mk)
 
@@ -28,3 +32,4 @@ PRODUCT_PACKAGES += \
     Launcher3 \
     messaging \
     charger_res_images
+
