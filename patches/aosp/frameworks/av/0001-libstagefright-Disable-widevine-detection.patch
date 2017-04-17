@@ -1,0 +1,50 @@
+From a00e42413e4cded46b4be3c5e91c1d7d9c94b4cd Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Mon, 17 Apr 2017 08:42:52 -0500
+Subject: [PATCH] libstagefright: Disable widevine detection.
+
+-Probably disables widevine but mitigates a crash that
+happens when calling into libwvm.so
+---
+ media/libstagefright/Android.mk       | 2 +-
+ media/libstagefright/WVMExtractor.cpp | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/media/libstagefright/Android.mk b/media/libstagefright/Android.mk
+index 2529aa7..b9ae8db 100644
+--- a/media/libstagefright/Android.mk
++++ b/media/libstagefright/Android.mk
+@@ -127,7 +127,7 @@ LOCAL_SHARED_LIBRARIES += \
+         libdl \
+         libRScpp \
+ 
+-LOCAL_CFLAGS += -Wno-multichar -Werror -Wno-error=deprecated-declarations -Wall
++LOCAL_CFLAGS += -Wno-multichar -Wno-error=deprecated-declarations -Wall
+ 
+ # enable experiments only in userdebug and eng builds
+ ifneq (,$(filter userdebug eng,$(TARGET_BUILD_VARIANT)))
+diff --git a/media/libstagefright/WVMExtractor.cpp b/media/libstagefright/WVMExtractor.cpp
+index bc48272..0c4d944 100644
+--- a/media/libstagefright/WVMExtractor.cpp
++++ b/media/libstagefright/WVMExtractor.cpp
+@@ -168,7 +168,7 @@ void WVMExtractor::setError(status_t err) {
+ bool SniffWVM(
+     const sp<DataSource> &source, String8 *mimeType, float *confidence,
+         sp<AMessage> *) {
+-
++#if 0
+     Mutex::Autolock autoLock(gWVMutex);
+ 
+     if (!WVMExtractor::getVendorLibHandle()) {
+@@ -189,7 +189,7 @@ bool SniffWVM(
+     } else {
+         ALOGE("IsWidevineMedia not found in libwvm.so");
+     }
+-
++#endif
+     return false;
+ }
+ 
+-- 
+1.9.1
+
