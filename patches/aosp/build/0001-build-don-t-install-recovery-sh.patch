@@ -1,0 +1,76 @@
+From a49786f0de33f50ecb873362a9136fbe7dc1c4b6 Mon Sep 17 00:00:00 2001
+From: Meticulus <theonejohnnyd@gmail.com>
+Date: Mon, 17 Apr 2017 17:09:17 -0500
+Subject: [PATCH] 0001-build-don-t-install-recovery-sh
+
+---
+ tools/releasetools/common.py | 56 +-------------------------------------------
+ 1 file changed, 1 insertion(+), 55 deletions(-)
+
+diff --git a/tools/releasetools/common.py b/tools/releasetools/common.py
+index 99b319d..1003943 100644
+--- a/tools/releasetools/common.py
++++ b/tools/releasetools/common.py
+@@ -1373,58 +1373,4 @@ def MakeRecoveryPatch(input_dir, output_sink, recovery_img, boot_img,
+   corresponding images.  info should be the dictionary returned by
+   common.LoadInfoDict() on the input target_files.
+   """
+-
+-  if info_dict is None:
+-    info_dict = OPTIONS.info_dict
+-
+-  diff_program = ["imgdiff"]
+-  path = os.path.join(input_dir, "SYSTEM", "etc", "recovery-resource.dat")
+-  if os.path.exists(path):
+-    diff_program.append("-b")
+-    diff_program.append(path)
+-    bonus_args = "-b /system/etc/recovery-resource.dat"
+-  else:
+-    bonus_args = ""
+-
+-  d = Difference(recovery_img, boot_img, diff_program=diff_program)
+-  _, _, patch = d.ComputePatch()
+-  output_sink("recovery-from-boot.p", patch)
+-
+-  try:
+-    boot_type, boot_device = GetTypeAndDevice("/boot", info_dict)
+-    recovery_type, recovery_device = GetTypeAndDevice("/recovery", info_dict)
+-  except KeyError:
+-    return
+-
+-  sh = """#!/system/bin/sh
+-if ! applypatch -c %(recovery_type)s:%(recovery_device)s:%(recovery_size)d:%(recovery_sha1)s; then
+-  applypatch %(bonus_args)s %(boot_type)s:%(boot_device)s:%(boot_size)d:%(boot_sha1)s %(recovery_type)s:%(recovery_device)s %(recovery_sha1)s %(recovery_size)d %(boot_sha1)s:/system/recovery-from-boot.p && log -t recovery "Installing new recovery image: succeeded" || log -t recovery "Installing new recovery image: failed"
+-else
+-  log -t recovery "Recovery image already installed"
+-fi
+-""" % {'boot_size': boot_img.size,
+-       'boot_sha1': boot_img.sha1,
+-       'recovery_size': recovery_img.size,
+-       'recovery_sha1': recovery_img.sha1,
+-       'boot_type': boot_type,
+-       'boot_device': boot_device,
+-       'recovery_type': recovery_type,
+-       'recovery_device': recovery_device,
+-       'bonus_args': bonus_args}
+-
+-  # The install script location moved from /system/etc to /system/bin
+-  # in the L release.  Parse the init.rc file to find out where the
+-  # target-files expects it to be, and put it there.
+-  sh_location = "etc/install-recovery.sh"
+-  try:
+-    with open(os.path.join(input_dir, "BOOT", "RAMDISK", "init.rc")) as f:
+-      for line in f:
+-        m = re.match(r"^service flash_recovery /system/(\S+)\s*$", line)
+-        if m:
+-          sh_location = m.group(1)
+-          print "putting script in", sh_location
+-          break
+-  except (OSError, IOError) as e:
+-    print "failed to read init.rc: %s" % (e,)
+-
+-  output_sink(sh_location, sh)
++  return
+-- 
+1.9.1
+
