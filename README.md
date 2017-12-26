@@ -5,13 +5,13 @@ This device tree is intended to be used with this kernel repo:
 
 See: https://github.com/Meticulus/android_kernel_huawei_hi6250
 
-branch: master
+branch: n-emui4
 ### Vendor
 This device tree is intented to be used with this vendor repo
 
 https://github.com/Meticulus/android_vendor_huawei_hi6250
 
-branch: master
+branch: n-emui4
 # How To Build
 This "How to" is scoped for new builders with moderate PC skills.
 
@@ -79,9 +79,9 @@ Copy the following into hi6250.xml, save and close.
 ```bash
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-  <project name="Meticulus/android_kernel_huawei_hi6250" path="kernel/huawei/hi6250" remote="github" revision="master"/>
-  <project name="Meticulus/android_device_huawei_hi6250" path="device/huawei/hi6250" remote="github" revision="master"/>
-  <project name="Meticulus/android_vendor_huawei_hi6250" path="vendor/huawei/hi6250" remote="github" revision="master"/>
+  <project name="Meticulus/android_kernel_huawei_hi6250" path="kernel/huawei/hi6250" remote="github" revision="n-emui4"/>
+  <project name="Meticulus/android_device_huawei_hi6250" path="device/huawei/hi6250" remote="github" revision="n-emui4"/>
+  <project name="Meticulus/android_vendor_huawei_hi6250" path="vendor/huawei/hi6250" remote="github" revision="n-emui4"/>
   <project name="LineageOS/android_vendor_nxp-nfc_opensource_Nfc" path="vendor/nxp-nfc/opensource/Nfc" remote="github" revision="cm-14.1"/>
   <project name="LineageOS/android_vendor_nxp-nfc_opensource_libnfc-nci" path="vendor/nxp-nfc/opensource/libnfc-nci" remote="github" revision="cm-14.1"/>
   <project name="LineageOS/android_vendor_nxp-nfc_opensource_frameworks" path="vendor/nxp-nfc/opensource/frameworks" remote="github" revision="cm-14.1"/>
@@ -92,9 +92,9 @@ Alternatively, if you would like to include Meticulus Development's "extras" the
 ```bash
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-  <project name="Meticulus/android_kernel_huawei_hi6250" path="kernel/huawei/hi6250" remote="github" revision="master"/>
-  <project name="Meticulus/android_device_huawei_hi6250" path="device/huawei/hi6250" remote="github" revision="master"/>
-  <project name="Meticulus/android_vendor_huawei_hi6250" path="vendor/huawei/hi6250" remote="github" revision="master"/>
+  <project name="Meticulus/android_kernel_huawei_hi6250" path="kernel/huawei/hi6250" remote="github" revision="n-emui4"/>
+  <project name="Meticulus/android_device_huawei_hi6250" path="device/huawei/hi6250" remote="github" revision="n-emui4"/>
+  <project name="Meticulus/android_vendor_huawei_hi6250" path="vendor/huawei/hi6250" remote="github" revision="n-emui4"/>
   <project name="LineageOS/android_vendor_nxp-nfc_opensource_Nfc" path="vendor/nxp-nfc/opensource/Nfc" remote="github" revision="cm-14.1"/>
   <project name="LineageOS/android_vendor_nxp-nfc_opensource_libnfc-nci" path="vendor/nxp-nfc/opensource/libnfc-nci" remote="github" revision="cm-14.1"/>
   <project name="LineageOS/android_vendor_nxp-nfc_opensource_frameworks" path="vendor/nxp-nfc/opensource/frameworks" remote="github" revision="cm-14.1"/>
@@ -173,10 +173,3 @@ cd /home/$USER/los
 lunch lineage_hi6250-userdebug
 make -j8 bacon
 ```
-
-NOTE: These trees can also build Resurection Remix (nougat), SlimRoms (nougat), and OmniRom (nougat) without modification but with logical changes to these instructions.
-1. When running "repo init ...", you will obviously want to download the code for the respective ROM.
-2. When building SlimRoms (nougat) or OmniRom (nougat) and running "lunch ...", you want slim_hi6250-userdebug or omni_hi6260-userdebug respectively.
-
-
-### Please let me know if there are mistakes,typos, mis/outdated - information in these instructions by creating an "issue".
