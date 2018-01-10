@@ -1,4 +1,5 @@
-# LineageOS 14.1 for the Huawei P9 Lite (hi6250)
+# NOT WORKING!!!!!!!!!!!!!!!!!! (YET)
+# Halium for the Huawei P9 Lite (hi6250)
 
 ### Kernel
 This device tree is intended to be used with this kernel repo:
@@ -38,12 +39,6 @@ sudo add-apt-repository ppa:openjdk-r/ppa
 sudo apt-get update
 sudo apt-get install openjdk-8-jdk
 ```
-LineageOS 14.1 uses ImageMagick in building the bootanimation.zip
-
-Terminal:
-```bash
-sudo apt-get install imagemagick
-```
 
 ### Step 2: Downloading the Source.
 
@@ -79,9 +74,9 @@ Copy the following into hi6250.xml, save and close.
 ```bash
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-  <project name="Meticulus/android_kernel_huawei_hi6250" path="kernel/huawei/hi6250" remote="github" revision="master"/>
-  <project name="Meticulus/android_device_huawei_hi6250" path="device/huawei/hi6250" remote="github" revision="master"/>
-  <project name="Meticulus/android_vendor_huawei_hi6250" path="vendor/huawei/hi6250" remote="github" revision="master"/>
+  <project name="petya230/android_kernel_huawei_hi6250" path="kernel/huawei/hi6250" remote="github" revision="master"/>
+  <project name="petya230/android_device_huawei_hi6250" path="device/huawei/hi6250" remote="github" revision="halium"/>
+  <project name="petya230/android_vendor_huawei_hi6250" path="vendor/huawei/hi6250" remote="github" revision="master"/>
   <project name="LineageOS/android_vendor_nxp-nfc_opensource_Nfc" path="vendor/nxp-nfc/opensource/Nfc" remote="github" revision="cm-14.1"/>
   <project name="LineageOS/android_vendor_nxp-nfc_opensource_libnfc-nci" path="vendor/nxp-nfc/opensource/libnfc-nci" remote="github" revision="cm-14.1"/>
   <project name="LineageOS/android_vendor_nxp-nfc_opensource_frameworks" path="vendor/nxp-nfc/opensource/frameworks" remote="github" revision="cm-14.1"/>
