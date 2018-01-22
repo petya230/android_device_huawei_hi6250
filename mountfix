@@ -1,21 +1,22 @@
-"hi6250")
+    "hi6250")
         sed -i \
-        -e 's /dev/block/platform/hi_mci.0/by-name/system ' /dev/block/mmcblk0p44 \
-        -e 's /dev/block/platform/hi_mci.0/by-name/misc ' /dev/block/mmcblk0p20 \
-        -e 's /dev/block/platform/hi_mci.0/by-name/boot ' /dev/block/mmcblk0p28 \
-        -e 's /dev/block/platform/hi_mci.0/by-name/cache ' /dev/block/mmcblk0p36 \
-        -e 's /dev/block/platform/hi_mci.0/by-name/vendor ' /dev/block/mmcblk0p47 \
-        -e 's /dev/block/platform/hi_mci.0/by-name/product ' /dev/block/mmcblk0p48 \
-        -e 's /dev/block/platform/hi_mci.0/by-name/version ' /dev/block/mmcblk0p46 \
-        -e 's /dev/block/platform/hi_mci.0/by-name/cust ' /dev/block/mmcblk0p45 \
-        -e 's /dev/block/platform/hi_mci.0/by-name/userdata ' /dev/block/mmcblk0p49 \
-        -e 's /dev/block/platform/hi_mci.0/by-name/splash2 ' /dev/block/mmcblk0p19 \
-        -e 's /dev/block/platform/hi_mci.0/by-name/secure_storage ' /dev/block/mmcblk0p13 \
-        -e 's /dev/block/platform/hi_mci.0/by-name/modemnvm_img ' /dev/block/mmcblk0p11 \
-        -e 's /dev/block/platform/hi_mci.0/by-name/modem_fw ' /dev/block/mmcblk0p31 \
-        -e 's /dev/block/platform/hi_mci.0/by-name/modem_om ' /dev/block/mmcblk0p18 \
+        -e 's /dev/block/platform/hi_mci.0/by-name/system /dev/block/mmcblk0p44 ' \
+        -e 's /dev/block/platform/hi_mci.0/by-name/misc /dev/block/mmcblk0p20 ' \
+        -e 's /dev/block/platform/hi_mci.0/by-name/boot /dev/block/mmcblk0p28 ' \
+        -e 's /dev/block/platform/hi_mci.0/by-name/cache /dev/block/mmcblk0p36 ' \
+        -e 's /dev/block/platform/hi_mci.0/by-name/vendor /dev/block/mmcblk0p47 ' \
+        -e 's /dev/block/platform/hi_mci.0/by-name/product /dev/block/mmcblk0p48 ' \
+        -e 's /dev/block/platform/hi_mci.0/by-name/version /dev/block/mmcblk0p46 ' \
+        -e 's /dev/block/platform/hi_mci.0/by-name/cust /dev/block/mmcblk0p45 ' \
+        -e 's /dev/block/platform/hi_mci.0/by-name/userdata /dev/block/mmcblk0p49 ' \
+        -e 's /dev/block/platform/hi_mci.0/by-name/splash2 /dev/block/mmcblk0p19 ' \
+        -e 's /dev/block/platform/hi_mci.0/by-name/secure_storage /dev/block/mmcblk0p13 ' \
+        -e 's /dev/block/platform/hi_mci.0/by-name/modemnvm_img /dev/block/mmcblk0p11 ' \
+        -e 's /dev/block/platform/hi_mci.0/by-name/modem_fw /dev/block/mmcblk0p31 ' \
+        -e 's /dev/block/platform/hi_mci.0/by-name/modem_om /dev/block/mmcblk0p18 ' \
          "$@"
         ;;
+
         
 "vns")
         sed -i \
