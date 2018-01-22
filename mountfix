@@ -27,3 +27,6 @@
             -e 's /dev/block/mmcblk0p18 mmcblk0p18 ' \
            "$@"
         ;;
+
+
+Command: adb shell ls -la /dev/block/bootdevice/by-nametotal 0
