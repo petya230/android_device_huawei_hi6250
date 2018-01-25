@@ -21,7 +21,7 @@ LOCAL_C_INCLUDES += \
 
 LOCAL_MODULE := libshim
 LOCAL_SRC_FILES := shim.cpp
-LOCAL_SHARED_LIBRARIES := libexif
+#LOCAL_SHARED_LIBRARIES := libexif
 
 #ifeq ($(TARGET_PRODUCT), aosp_hi6250)
 #LOCAL_CFLAGS += -DAOSP

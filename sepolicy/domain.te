@@ -1,0 +1,6 @@
+allow logd cache_file:file { write append };
+allow init shell_exec:file { execute_no_trans };
+allow tee default_prop:property_service { set };
+allow hwcamcfgsvr default_android_service:service_manager { add };
+allow perfhub default_android_service:service_manager { add };
+allow tee tee:capability { sys_ptrace };
